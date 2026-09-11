@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+
+# Build and compilation outputs
+dist/
+build/
+out/
+
+# Log files
+*.log
+logs/
+
+# Environment configurations and lock files
+.env
+.env.*
+package-lock.json
+
+# Local configurations
+.vscode/
+.idea/

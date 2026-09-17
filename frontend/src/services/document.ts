@@ -13,6 +13,10 @@ const API_BASE_URL =
     fileName: string;
     contentType: string;
     fileSize: number;
+    departmentId: string;
+    category: string;
+    documentType?: string,
+    accessLevel?: string
   }
 
   export async function createUploadUrl(data: CreateUploadUrlRequest): Promise<UploadUrlResponse> {

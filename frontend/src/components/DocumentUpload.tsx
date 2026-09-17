@@ -63,7 +63,10 @@ export default function DocumentUpload(){
               const uploadData = await createUploadUrl({
                 fileName: file.name,
                 contentType: file.type,
-                fileSize: file.size
+                fileSize: file.size,
+                departmentId: '1',
+                documentType: "",
+                category: ""
               });
         
               console.log(

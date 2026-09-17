@@ -8,6 +8,7 @@ import healthRouter from "./routes/health.routes";
 import userRouter from "./routes/user.routes";
 import documentRouter from "./routes/document.routes";
 import chatRouter from "./routes/chat.routes";
+import departmentRouter from "./routes/department.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/documents", documentRouter);
 app.use("/api/v1/chat", chatRouter);
+app.use("/api/v1/departments", departmentRouter);
 
 app.use((req, res) => {
   res.status(404).json({

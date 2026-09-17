@@ -4,7 +4,7 @@ import { cognitoVerifier } from "../config/congnito";
 // import { syncUser } from "../services/user.service";
 import { prisma } from "../config/database";
 
-export async function authenticate(
+export async function signupAuthentication(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -41,54 +41,11 @@ export async function authenticate(
       });
     }
 
-    // const email = req.headers["x-user-email"];
+    const email = req.headers["x-user-email"] as string;
 
-    // if (!email || typeof email !== "string") {
-    //   return res.status(400).json({
-    //     message: "User email is required"
-    //   });
-    // }
-
-    const user = await prisma.user.findUnique({
-      where: {
-        cognitoUserId,
-      },
-      include: {
-        departments: {
-          select: {
-            departmentId: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return res.status(403).json({
-        success: false,
-        message: "User is not registered",
-      });
-    }
-
-    // const user = await syncUser({
-    //   cognitoUserId,
-    //   email
-    // });
-
-    // if (!user.isActive) {
-    //   return res.status(403).json({
-    //     message: "User is inactive"
-    //   });
-    // }
-
-    const departmentIds = user.departments.map((ud) => ud.departmentId);
-
-    req.auth = {
-      cognitoUserId: user.cognitoUserId,
-      userId: user.id,
-      tenantId: user.tenantId,
-      role: user.role,
-      email: user.email,
-      departmentIds: departmentIds,
+    req.user = {
+      cognitoUserId: cognitoUserId,
+      email,
     };
 
     next();

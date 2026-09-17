@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { generateEmbedding } from "./embedding.service";
 
 import {
@@ -7,6 +8,8 @@ import {
 
 interface SearchQueryInput {
   tenantId: string;
+  departmentIds: string[];
+  role: UserRole;
   query: string;
   topK?: number;
 }
@@ -30,6 +33,8 @@ export async function searchKnowledgeBase(
 
   const results = await searchSimilarChunks({
     tenantId: input.tenantId,
+    departmentIds: input.departmentIds,
+    role: input.role,
     embedding,
     topK: 5,
   });

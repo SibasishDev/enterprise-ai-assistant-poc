@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { searchKnowledgeBase } from "./query.service";
 
 import { rerankDocuments } from "./reranker.service";
@@ -14,6 +15,8 @@ export interface AdvancedRetrievalResult {
 
 export async function retrieveRelevantChunks(
   tenantId: string,
+  departmentIds: string[],
+  role: UserRole,
   query: string,
 ): Promise<
   Array<
@@ -24,6 +27,8 @@ export async function retrieveRelevantChunks(
 > {
   const candidates = await searchKnowledgeBase({
     tenantId,
+    departmentIds,
+    role,
     query,
     topK: RETRIEVAL_TOP_K,
   });

@@ -17,6 +17,9 @@ export async function createDocumentUpload(req: Request, res: Response) {
     fileName: input.fileName,
     contentType: input.contentType,
     fileSize: input.fileSize,
+    departmentId: input.departmentId,
+    category: input.category,
+    documentType: input.documentType,
   });
 
   return res.status(201).json(result);

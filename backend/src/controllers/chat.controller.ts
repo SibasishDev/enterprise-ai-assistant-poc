@@ -17,6 +17,8 @@ export async function askQuestion(req: Request, res: Response) {
 
     const result = await askKnowledgeBase({
       tenantId: req.auth.tenantId,
+      departmentIds: req.auth.departmentIds,
+      role: req.auth.role,
       question: input.question,
       topK: input.topK,
     });

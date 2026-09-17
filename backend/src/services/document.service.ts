@@ -12,6 +12,9 @@ interface CreateUploadInput {
   fileName: string;
   contentType: string;
   fileSize?: number;
+  departmentId: string;
+  category: string;
+  documentType: string;
 }
 
 export async function createUploadUrl(input: CreateUploadInput) {

@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
   extensions = [pgvector(map: "vector")]
 }
 
@@ -14,70 +14,116 @@ enum UserRole {
   USER
 }
 
-model Tenant {
-  id        String     @id @default(uuid())
-  name      String
-  createdAt DateTime   @default(now())
+enum DocumentAccessLevel {
+  PRIVATE
+  DEPARTMENT
+  TENANT
+}
 
-  users     User[]
-  documents Document[]
+model Tenant {
+  id   String @id @default(uuid())
+  name String
+
+  createdAt DateTime @default(now())
+
+  users       User[]
+  documents   Document[]
+  departments Department[]
 }
 
 model User {
-  id             String   @id @default(uuid())
-  cognitoUserId  String   @unique
-  email          String
-  role           UserRole @default(USER)
+  id            String @id @default(uuid())
+  cognitoUserId String @unique
+  email         String
 
-  tenantId       String
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  role UserRole @default(USER)
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  tenantId   String
+  department String?
+  jobTitle   String?
+  location   String?
+  isActive   Boolean @default(true)
+
+  tenant         Tenant           @relation(fields: [tenantId], references: [id])
+  documentAccess DocumentAccess[]
+  departments    UserDepartment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tenantId])
   @@index([cognitoUserId])
+  @@index([tenantId, department])
 }
 
 model Document {
-  id           String   @id @default(uuid())
+  id       String @id @default(uuid())
+  tenantId String
 
-  tenantId     String
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  fileName    String
+  s3Key       String
+  contentType String
+  fileSize    BigInt?
 
-  fileName     String
-  s3Key        String
-  contentType  String
-  fileSize     BigInt?
+  departmentId String?
+  category     String?
+  documentType String?
+  accessLevel  DocumentAccessLevel @default(PRIVATE)
+  department   Department?         @relation(fields: [departmentId], references: [id])
 
-  status       DocumentStatus @default(PENDING)
+  tags     String[]
+  metadata Json?
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status DocumentStatus @default(PENDING)
 
-  chunks       DocumentChunk[]
+  tenant Tenant           @relation(fields: [tenantId], references: [id])
+  chunks DocumentChunk[]
+  access DocumentAccess[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tenantId])
-  @@index([tenantId, status])
+  @@index([tenantId, departmentId])
+  @@index([tenantId, category])
+  @@index([tenantId, documentType])
 }
 
 model DocumentChunk {
-  id          String   @id @default(uuid())
-  documentId  String
-  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  tenantId    String
-  chunkIndex  Int
-  content     String
-  pageNumber  Int?
-  tokenCount  Int?
-  metadata    Json?
-  embedding   Unsupported("vector(1024)")?
-  createdAt   DateTime @default(now())
+  id           String                       @id @default(uuid())
+  documentId   String
+  document     Document                     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tenantId     String
+  chunkIndex   Int
+  content      String
+  pageNumber   Int?
+  tokenCount   Int?
+  metadata     Json?
+  embedding    Unsupported("vector(1024)")?
+  searchVector Unsupported("tsvector")?
+  createdAt    DateTime                     @default(now())
 
+  @@unique([documentId, chunkIndex])
   @@index([tenantId])
   @@index([documentId])
   @@index([tenantId, documentId])
-  @@unique([documentId, chunkIndex])
+  @@index([searchVector], name: "DocumentChunk_searchVector_idx", type: Gin)
+}
+
+model DocumentAccess {
+  id String @id @default(uuid())
+
+  userId     String
+  documentId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, documentId])
+  @@index([userId])
+  @@index([documentId])
 }
 
 enum DocumentStatus {
@@ -85,4 +131,28 @@ enum DocumentStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+model Department {
+  id       String @id @default(uuid())
+  name     String
+  tenantId String
+
+  tenant    Tenant           @relation(fields: [tenantId], references: [id])
+  users     UserDepartment[]
+  documents Document[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+}
+
+model UserDepartment {
+  userId       String
+  departmentId String
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, departmentId])
+  @@index([departmentId])
 }

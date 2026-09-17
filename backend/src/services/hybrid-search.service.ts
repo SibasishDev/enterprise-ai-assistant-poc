@@ -3,6 +3,7 @@ import { searchKnowledgeBase } from "./query.service";
 import { searchKeywordChunks } from "./keyword-search.service";
 
 import { VectorSearchResult } from "./vector-search.service";
+import { UserRole } from "@prisma/client";
 
 interface HybridResult extends VectorSearchResult {
   vectorScore: number;
@@ -12,11 +13,15 @@ interface HybridResult extends VectorSearchResult {
 
 export async function hybridSearch(
   tenantId: string,
+  departmentIds: string[],
+  role: UserRole,
   query: string,
 ): Promise<HybridResult[]> {
   const [vectorResults, keywordResults] = await Promise.all([
     searchKnowledgeBase({
       tenantId,
+      departmentIds,
+      role,
       query,
       topK: 20,
     }),

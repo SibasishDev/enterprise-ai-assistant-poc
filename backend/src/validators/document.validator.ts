@@ -7,4 +7,7 @@ export const createUploadSchema = z.object({
     .number()
     .positive()
     .max(50 * 1024 * 1024),
+  departmentId: z.string(),
+  category: z.string(),
+  documentType: z.string(),
 });

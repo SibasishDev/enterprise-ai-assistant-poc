@@ -6,9 +6,12 @@ import { generateAnswer } from "./llm.service";
 // import { retrieveRelevantChunks } from "./advanced-retrieval.service";
 import { selectContextsByTokenBudget } from "./token-manager.service";
 import { searchKnowledgeBase } from "./query.service";
+import { UserRole } from "@prisma/client";
 
 interface AskQuestionInput {
   tenantId: string;
+  departmentIds: string[];
+  role: UserRole;
   question: string;
   topK?: number;
 }
@@ -56,6 +59,8 @@ export async function askKnowledgeBase(
 
   const retrievedChunks = await searchKnowledgeBase({
     tenantId: input.tenantId,
+    departmentIds: input.departmentIds,
+    role: input.role,
     query: input.question,
     topK: input.topK ?? 5,
   });

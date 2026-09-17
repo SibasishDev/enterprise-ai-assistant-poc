@@ -29,27 +29,44 @@ async function main() {
     }
   });
 
-  await prisma.user.upsert({
-    where: { cognitoUserId: "cognito-user-a" },
-    update: {},
-    create: {
-      cognitoUserId: "cognito-user-a",
-      email: "admin@acme.example",
-      role: UserRole.TENANT_ADMIN,
-      tenantId: tenantA.id
-    }
-  });
+//   await prisma.user.upsert({
+//     where: { cognitoUserId: "4123ad3a-9061-7000-f4f3-f7e708ce68f0" },
+//     update: {},
+//     create: {
+//       cognitoUserId: "4123ad3a-9061-7000-f4f3-f7e708ce68f0",
+//       email: "dassibasish46@gmail.com",
+//       role: UserRole.TENANT_ADMIN,
+//       tenantId: tenantA.id
+//     }
+//   });
 
-  await prisma.user.upsert({
-    where: { cognitoUserId: "cognito-user-b" },
-    update: {},
-    create: {
-      cognitoUserId: "cognito-user-b",
-      email: "admin@globex.example",
-      role: UserRole.TENANT_ADMIN,
-      tenantId: tenantB.id
-    }
-  });
+//   await prisma.user.upsert({
+//     where: { cognitoUserId: "cognito-user-b" },
+//     update: {},
+//     create: {
+//       cognitoUserId: "cognito-user-b",
+//       email: "admin@globex.example",
+//       role: UserRole.TENANT_ADMIN,
+//       tenantId: tenantB.id
+//     }
+//   });
+
+const acmeDepartments = ["HR", "Engineering", "Finance", "Legal"];
+  for (const deptName of acmeDepartments) {
+    await prisma.department.upsert({
+      where: {
+        tenantId_name: {
+          tenantId: tenantA.id,
+          name: deptName
+        }
+      },
+      update: {},
+      create: {
+        name: deptName,
+        tenantId: tenantA.id
+      }
+    });
+  }
 
   console.log("Seed completed successfully");
 }
